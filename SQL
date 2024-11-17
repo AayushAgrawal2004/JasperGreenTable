@@ -1,0 +1,201 @@
+-- Create and Use Schema JasperGreen_DB
+Create schema JasperGreen_DB;
+Use JasperGreen_DB;
+-- Create table SERVICE
+Create table SERVICE (
+SERVICE_ID integer not null auto_increment,
+SERVICE_DESCRIPTION varchar (255) not null,
+Constraint SERVICE_PK primary key (SERVICE_ID)
+);
+
+-- Create table CUSTOMER
+Create table CUSTOMER (
+CUST_ID integer not null auto_increment,
+CUST_FIRST_NAME varchar (35) not null,
+CUST_LAST_NAME varchar (35) not null,
+CUST_STREET varchar (100) not null,
+CUST_CITY varchar (55) not null,
+CUST_STATE char (2) not null,
+CUST_ZIP varchar (10) not null,
+CUST_PHONE varchar (10) not null,
+CUST_EMAIL varchar (50) not null,
+CUST_BALANCE decimal (8, 2) not null,
+CUST_REFERRED_BY integer,
+Constraint CUSTOMER_PK primary key (CUST_ID),
+Constraint CUSTOMER_FK foreign key (CUST_REFERRED_BY) references CUSTOMER (CUST_ID) on delete cascade
+);
+
+-- Create table PROPERTY
+Create table PROPERTY (
+PROPERTY_ID integer not null auto_increment,
+CUST_ID integer not null,
+PROPERTY_STREET varchar (100) not null,
+PROPERTY_CITY varchar (55) not null,
+PROPERTY_STATE char (2) not null,
+PROPERTY_ZIP varchar (10) not null,
+PROPERTY_SIZE integer not null,
+PROPERTY_DETAILS varchar (255) not null,
+Constraint PROPERTY_PK primary key (PROPERTY_ID),
+Constraint PROPERTY_FK foreign key (CUST_ID) references CUSTOMER (CUST_ID) on delete cascade
+);
+
+
+
+-- Create table CONTRACTED_SERVICE
+Create table CONTRACTED_SERVICE (
+CONTRACT_ID integer not null auto_increment,
+PROPERTY_ID integer not null,
+SERVICE_ID integer not null,
+CONTRACT_DATE DateTime not null,
+CONTRACT_AMOUNT decimal (8, 2) not null,
+FREQUENCY varchar (30) not null,
+NEXT_SERVICE_DATE DateTime,
+Constraint CONTRACTED_SERVICE_PK primary key (CONTRACT_ID),
+Constraint CONTRACTED_SERVICE_FK1 foreign key (PROPERTY_ID) references PROPERTY (PROPERTY_ID) on delete cascade,
+Constraint CONTRACTED_SERVICE_FK2 foreign key (SERVICE_ID) references SERVICE (SERVICE_ID) on delete cascade
+);
+
+-- Create table EMPLOYEE
+Create Table EMPLOYEE (
+EMP_ID integer not null auto_increment,
+EMP_FIRST_NAME varchar (35) not null,
+EMP_LAST_NAME varchar (35) not null,
+EMP_STREET varchar (100) not null,
+EMP_CITY varchar (55) not null,
+EMP_STATE char (2) not null,
+EMP_ZIP varchar (10) not null,
+EMP_PHONE varchar (10) not null,
+CREW_CHIEF integer,
+Constraint EMPLOYEE_PK primary key (EMP_ID),
+Constraint EMPLOYEE_FK foreign key (CREW_CHIEF) references EMPLOYEE (EMP_ID) on delete cascade
+);
+
+-- Create table PROVIDED_SERVICE
+Create table PROVIDED_SERVICE (
+PROVISION_ID integer not null auto_increment,
+CONTRACT_ID integer not null,
+PROVISION_DATE DateTime not null,
+CREW_CHIEF integer not null,
+CUST_ID integer not null,
+Constraint PROVIDED_SERVICE_PK primary key (PROVISION_ID), 
+Constraint PROVIDED_SERVICE_FK1 foreign key (CONTRACT_ID) references CONTRACTED_SERVICE (CONTRACT_ID) on delete cascade,
+Constraint PROVIDED_SERVICE_FK2 foreign key (CREW_CHIEF) references EMPLOYEE (EMP_ID) on delete cascade,
+Constraint PROVIDED_SERVICE_FK3 foreign key (CUST_ID) references CUSTOMER (CUST_ID) on delete cascade
+);
+
+-- Create table PAYMENT
+Create Table PAYMENT (
+PAYMENT_ID integer not null auto_increment,
+CUST_ID integer not null,
+CREW_CHIEF integer not null,
+PAYMENT_DATE DateTime not null,
+PAYMENT_AMOUNT decimal (8, 2) not null,
+Constraint PAYMENT_PK primary key (PAYMENT_ID),
+Constraint PAYMENT_FK1 foreign key (CUST_ID) references CUSTOMER (CUST_ID) on delete cascade,
+Constraint PAYMENT_FK2 foreign key (CREW_CHIEF) references EMPLOYEE (EMP_ID) on delete cascade
+);
+
+Insert into SERVICE
+Values 
+(default, 'Mowing grass'), 
+(default, 'Edging sidewalks'), 
+(default, 'Blowing grass'), 
+(default, 'Raking leaves'), 
+(default, 'Shrubbery trimming'),
+(default, 'Landscaping'),
+(default, 'Weed control'),
+(default, 'Lawn seeding'),
+(default, 'Lawn aeration'),
+(default, 'Fertilization');
+
+Insert into CUSTOMER 
+Values 
+(default, 'Aayush', 'Agrawal', '315 Boyett Street', 'College Station', 'TX', '77840', '4445555566', 'aayush@gmail.com', 0.00, NULL), 
+(default, 'Benz', 'Le', '2415 Junction Boys Rd', 'College Station', 'TX', '77845', '9790000000', 'benznova281@gmail.com', 60.25, 1), 
+(default, 'John', 'Doe', '123 Aggie St', 'College Station', 'TX', '77843', '9791234567', 'johndoe@example.com', 55.00, NULL), 
+(default, 'Jane', 'Smith', '456 Campus Rd', 'College Station', 'TX', '77843', '9792345678', 'janesmith@example.com', 25.00, 2), 
+(default, 'Robert', 'Johnson', '789 College Ave', 'College Station', 'TX', '77840', '9793456789', 'robertjohnson@example.com', 40.00, 4), 
+(default, 'Emily', 'Davis', '101 Northgate Blvd', 'College Station', 'TX', '77843', '9794567890', 'emilydavis@example.com', 21.00, NULL), 
+(default, 'Michael', 'Wilson', '202 University Dr', 'College Station', 'TX', '77843', '9795678901', 'michaelwilson@example.com', 26.50, 2), 
+(default, 'Sarah', 'Lee', '303 Aggieland Pkwy', 'College Station', 'TX', '77843', '9796789012', 'sarahlee@example.com', 25.25, 3), 
+(default, 'David', 'Martinez', '404 George Bush Dr', 'College Station', 'TX', '77840', '9797890123', 'davidmartinez@example.com', 15.00, 2), 
+(default, 'Sophia', 'Garcia', '505 Welborn Rd', 'College Station', 'TX', '77840', '9798901234', 'sophiagarcia@example.com', 205.00, 5);
+
+Insert into PROPERTY 
+Values
+(default, 1, '315 Boyett Street', 'College Station', 'TX', '77840', 1500, 'Lot size: 5000 sqft, 3 trees, 5 shrubs, 1 driveway, no sidewalks, one-time service'), 
+(default, 2, '2415 Junction Boys Rd', 'College Station', 'TX', '77845', 1800, 'Lot size: 6000 sqft, 5 trees, 2 driveways, sidewalks, bi-weekly service'), 
+(default, 2, '789 Pine Ln', 'College Station', 'TX', '77845', 1200, 'Lot size: 4000 sqft, 2 trees, 4 shrubs, no driveway, no sidewalks, monthly service'), 
+(default, 3, '123 Aggie St', 'College Station', 'TX', '77843', 1700, 'Lot size: 6500 sqft, 4 trees, 8 shrubs, 2 driveways, sidewalks, weekly service'),
+(default, 4, '456 Campus Rd', 'College Station', 'TX', '77843', 2000, 'Lot size: 7500 sqft, 7 trees, 2 shrubs, 1 driveway, sidewalks, weekly service'), 
+(default, 5, '789 College Ave', 'College Station', 'TX', '77840', 1750, 'Lot size: 5500 sqft, 4 trees, 6 shrubs, 1 driveway, no sidewalks, monthly service'), 
+(default, 6, '101 Northgate Blvd', 'College Station', 'TX', '77843', 1300, 'Lot size: 4500 sqft, 3 trees, 5 shrubs, no driveway, no sidewalks, monthly service'), 
+(default, 7, '202 University Dr', 'College Station', 'TX', '77843', 2200, 'Lot size: 8000 sqft, 6 trees, 2 driveways, sidewalks, weekly service'), 
+(default, 8, '303 Aggieland Pkwy', 'College Station', 'TX', '77843', 1600, 'Lot size: 6000 sqft, 4 trees, 7 shrubs, 1 driveway, no sidewalks, bi-weekly service'), 
+(default, 9, '404 George Bush Dr', 'College Station', 'TX', '77840', 1900, 'Lot size: 7000 sqft, 5 trees, 1 driveway, sidewalks, monthly service'), 
+(default, 10, '505 Welborn Rd', 'College Station', 'TX', '77840', 1400, 'Lot size: 5000 sqft, 3 trees, 6 shrubs, no driveway, no sidewalks, monthly service');
+
+INSERT INTO CONTRACTED_SERVICE 
+VALUES 
+(default, 1, 1, '2023-10-22 13:30:00', 20.50, 'one-time', NULL), 
+(default, 1, 3, '2023-10-22 13:30:00', 20.00, 'one-time', NULL), 
+(default, 2, 2, '2023-10-23 10:00:00', 10.25, 'bi-weekly', '2023-11-20 10:00:00'),
+(default, 3, 5, '2023-12-24 12:30:00', 50.00, 'monthly', '2024-02-24 12:30:00'),
+(default, 4, 1, '2023-11-01 11:00:00', 25.00, 'weekly', '2023-11-15 11:00:00'),
+(default, 4, 2, '2023-11-01 11:00:00', 10.00, 'weekly', '2023-11-15 11:00:00'),
+(default, 4, 10, '2023-11-01 11:00:00', 20.00, 'weekly', '2023-11-15 11:00:00'),
+(default, 5, 1, '2023-12-29 09:30:00', 25.00, 'weekly', '2024-01-12 09:30:00'),
+(default, 6, 5, '2023-12-13 14:00:00', 40.00, 'monthly', '2024-02-13 14:00:00'),
+(default, 7, 9, '2023-11-01 11:00:00', 21.00, 'monthly', '2024-01-01 11:00:00'),
+(default, 8, 1, '2023-11-01 15:30:00', 26.50, 'weekly', '2023-11-15 15:30:00'),
+(default, 9, 5, '2023-12-20 09:00:00', 25.25, 'bi-weekly', '2024-01-17 09:00:00'),
+(default, 10, 4, '2023-10-01 13:00:00', 15.00, 'monthly', '2023-12-01 13:00:00'),
+(default, 11, 6, '2024-01-15 08:30:00', 205.00, 'monthly', '2024-03-15 08:30:00');
+
+Insert into EMPLOYEE 
+Values
+(default, 'James', 'Taylor', '1001 West St', 'College Station', 'TX', '77843', '9791234567', NULL), 
+(default, 'Laura', 'Baker', '2021 North Rd', 'College Station', 'TX', '77845', '9792345678', 1), 
+(default, 'Chris', 'Adams', '3032 South Ave', 'College Station', 'TX', '77840', '9793456789', 1),
+(default, 'Sarah', 'Morgan', '4043 East Dr', 'College Station', 'TX', '77840', '9794567890', NULL), 
+(default, 'David', 'White', '5054 West Ln', 'College Station', 'TX', '77845', '9795678901', 4), 
+(default, 'Anna', 'Green', '6065 North Blvd', 'College Station', 'TX', '77840', '9796789012', 4),
+(default, 'Michael', 'King', '7076 South Rd', 'College Station', 'TX', '77840', '9797890123', NULL), 
+(default, 'Emma', 'Scott', '8087 West Cir', 'College Station', 'TX', '77845', '9798901234', 7), 
+(default, 'Daniel', 'Hall', '9098 North Pl', 'College Station', 'TX', '77840', '9799012345', 7), 
+(default, 'Sophia', 'Turner', '10109 South Ct', 'College Station', 'TX', '77843', '9790123456', NULL);
+
+Insert into PROVIDED_SERVICE
+Values
+(default, 1, '2023-10-22 13:30:00', 1, 1),
+(default, 2, '2023-10-22 13:30:00', 1, 1),
+(default, 3, '2023-11-06 10:00:00', 1, 2),
+(default, 4, '2024-01-24 12:30:00', 1, 2),
+(default, 5, '2023-11-08 11:00:00', 4, 3),
+(default, 6, '2023-11-08 11:00:00', 4, 3),
+(default, 7, '2023-11-08 11:00:00', 4, 3),
+(default, 8, '2024-01-05 09:30:00', 4, 4),
+(default, 9, '2024-01-13 14:00:00', 7, 5),
+(default, 10, '2023-12-01 11:00:00', 7, 6),
+(default, 11, '2023-11-08 15:30:00', 7, 7),
+(default, 12, '2024-01-03 09:00:00', 7, 8),
+(default, 13, '2023-11-01 13:00:00', 10, 9),
+(default, 14, '2024-02-15 08:30:00', 10, 10);
+
+
+
+Insert into PAYMENT
+Values
+(default, 1, 1, '2023-10-23 13:00:00', 50.75),
+(default, 2, 1, '2023-11-07 08:00:00', 10.25),
+(default, 2, 1, '2024-01-24 3:30:00', 50.00),
+(default, 3, 4, '2023-11-10 17:00:00', 55.00),
+(default, 4, 4, '2024-01-06 10:30:00', 25.00),
+(default, 5, 7, '2024-01-13 16:00:00', 40.00),
+(default, 6, 7, '2023-12-01 12:00:00', 21.00),
+(default, 7, 7, '2023-11-09 09:00:00', 26.50),
+(default, 8, 7, '2024-01-03 10:00:00', 25.25),
+(default, 9, 10, '2023-11-01 14:00:00', 15.00),
+(default, 10, 10, '2024-02-16 08:00:00', 205.00);
+
+
